@@ -17,23 +17,35 @@ sudo apt install \
   zip dosfstools libcap2-bin grep rsync xz-utils file
 ```
 
-## 2. Clone pi-gen
+## 2. Clone pi-gen and this repository
+
+Clone both **outside of each other**, anywhere on your machine.
+The default expected location for pi-gen is `~/pi-gen`:
 
 ```bash
 git clone https://github.com/RPi-Distro/pi-gen.git ~/pi-gen
+git clone https://github.com/benjaminbellamy/bouclette.git ~/bouclette
 ```
 
-## 3. Clone this repository
+Your home directory should look like:
 
-```bash
-git clone <repo-url> ~/bouclette
+```
+~/
+├── bouclette/    ← this repo
+└── pi-gen/       ← pi-gen (default location)
 ```
 
-## 4. Build
+## 3. Build
 
 ```bash
 cd ~/bouclette
 ./build/build-image.sh
+```
+
+If pi-gen is not at `~/pi-gen`, point to it explicitly:
+
+```bash
+PIGEN_DIR=/path/to/pi-gen ./build/build-image.sh
 ```
 
 The script will:
@@ -45,13 +57,7 @@ The script will:
 4. Run the pi-gen build (this takes **20–60 minutes** depending on your machine
    and internet connection)
 
-If pi-gen is not at `~/pi-gen`, point to it explicitly:
-
-```bash
-PIGEN_DIR=/path/to/pi-gen ./build/build-image.sh
-```
-
-## 5. Flash the image
+## 4. Flash the image
 
 The finished image is in `~/pi-gen/deploy/`.
 
