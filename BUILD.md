@@ -14,7 +14,9 @@ image builder. The result is a ready-to-flash `.img.xz` file.
 ```bash
 sudo apt install \
   git quilt parted qemu-user-static debootstrap zerofree \
-  zip dosfstools libcap2-bin grep rsync xz-utils file
+  zip dosfstools libcap2-bin grep rsync xz-utils file \
+  libarchive-tools pigz arch-test
+sudo systemctl restart systemd-binfmt
 ```
 
 ## 2. Clone pi-gen and this repository
@@ -98,12 +100,6 @@ cd ~/bouclette && ./build/build-image.sh
 ---
 
 ## Troubleshooting
-
-**`qemu-user-static` not found or binfmt not active**
-```bash
-sudo apt install qemu-user-static
-sudo systemctl restart systemd-binfmt
-```
 
 **Build fails with "debootstrap error"**
 Check your internet connection — debootstrap downloads packages from the
