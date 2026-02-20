@@ -150,15 +150,15 @@ ffmpeg -i input.mp4 -i chapters.txt -map 0 -map_chapters 1 -codec copy output.mk
 
 ## Getting Started
 
-There are two ways to get Bouclette onto an SD card:
+There are three ways to get Bouclette onto an SD card:
 
-| | [INSTALL.md](INSTALL.md) | [BUILD.md](BUILD.md) |
-|---|---|---|
-| **Approach** | Flash official RPi OS Lite, configure over SSH | Build a custom image from scratch with pi-gen |
-| **Time** | ~5 min + package download on the Pi | 20–60 min on the laptop |
-| **Requirements** | SSH access, internet on the Pi | Linux laptop, ~8 GB disk, build tools |
-| **Result** | Configured Pi | Ready-to-flash `.img.xz` |
-| **Best for** | Single install, quick setup | Reproducible deployment, multiple units |
+| | [Releases](https://github.com/benjaminbellamy/bouclette/releases) | [INSTALL.md](INSTALL.md) | [BUILD.md](BUILD.md) |
+|---|---|---|---|
+| **Approach** | Flash the pre-built image | Flash official RPi OS Lite, configure over SSH | Build a custom image from scratch with pi-gen |
+| **Time** | ~5 min | ~5 min + package download on the Pi | 20–60 min on the laptop |
+| **Requirements** | Raspberry Pi Imager | SSH access, internet on the Pi | Linux laptop, ~8 GB disk, build tools |
+| **Result** | Ready to use | Configured Pi | Ready-to-flash `.img.xz` |
+| **Best for** | Just want it to work | Single install, quick setup | Reproducible deployment, multiple units |
 
 ---
 
