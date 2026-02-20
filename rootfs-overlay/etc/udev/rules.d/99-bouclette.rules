@@ -1,0 +1,19 @@
+# USB storage partition inserted — any USB key, no label required
+ACTION=="add", SUBSYSTEM=="block", KERNEL=="sd[a-z][0-9]", \
+  ENV{ID_BUS}=="usb", ENV{ID_TYPE}=="disk", \
+  RUN+="/usr/local/bin/bouclette-attach.sh $env{DEVNAME}"
+
+# USB storage partition inserted — raw device (no partition table)
+ACTION=="add", SUBSYSTEM=="block", KERNEL=="sd[a-z]", \
+  ENV{ID_BUS}=="usb", ENV{ID_TYPE}=="disk", \
+  RUN+="/usr/local/bin/bouclette-attach.sh $env{DEVNAME}"
+
+# USB storage partition removed
+ACTION=="remove", SUBSYSTEM=="block", KERNEL=="sd[a-z][0-9]", \
+  ENV{ID_BUS}=="usb", \
+  RUN+="/usr/local/bin/bouclette-detach.sh $env{DEVNAME}"
+
+# USB storage raw device removed
+ACTION=="remove", SUBSYSTEM=="block", KERNEL=="sd[a-z]", \
+  ENV{ID_BUS}=="usb", \
+  RUN+="/usr/local/bin/bouclette-detach.sh $env{DEVNAME}"

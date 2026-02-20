@@ -1,0 +1,15 @@
+[Unit]
+Description=Bouclette MPV Player
+After=local-fs.target
+
+[Service]
+User=pi
+Group=pi
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+ExecStart=/usr/local/bin/bouclette-play.sh
+Restart=no
+StandardOutput=append:/tmp/bouclette.log
+StandardError=append:/tmp/bouclette.log
+
+[Install]
+WantedBy=multi-user.target

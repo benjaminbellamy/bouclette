@@ -1,0 +1,25 @@
+# pi-gen build output
+deploy/
+work/
+*.img
+*.img.xz
+*.zip
+
+# pi-gen clone (if checked out alongside the repo)
+pi-gen/
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+
+# Claude Code
+.claude/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
