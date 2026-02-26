@@ -8,6 +8,7 @@ WAITING_IMAGE=/var/lib/bouclette/waiting.png
 FONT=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf
 
 WAITING_PID=""
+MPV_PID=""
 
 log() {
     echo "[bouclette] $*"
@@ -77,7 +78,16 @@ hide_waiting() {
     fi
 }
 
+stop_mpv() {
+    if [ -n "$MPV_PID" ]; then
+        kill "$MPV_PID" 2>/dev/null || true
+        wait "$MPV_PID" 2>/dev/null || true
+        MPV_PID=""
+    fi
+}
+
 cleanup() {
+    stop_mpv
     hide_waiting
     kill "$KEYS_PID" 2>/dev/null || true
 }
@@ -141,9 +151,22 @@ while true; do
         --input-ipc-server="$MPV_SOCKET" \
         --input-conf=/etc/mpv/input.conf \
         --no-config \
-        --really-quiet || true
+        --really-quiet &
+    MPV_PID=$!
+
+    # Monitor USB presence; kill mpv as soon as the drive is removed
+    while kill -0 "$MPV_PID" 2>/dev/null; do
+        if [ ! -b "$USB_DEV" ]; then
+            log "USB device removed — stopping playback"
+            kill "$MPV_PID" 2>/dev/null || true
+            break
+        fi
+        sleep 2
+    done
+    wait "$MPV_PID" 2>/dev/null || true
+    MPV_PID=""
 
     log "mpv exited — unmounting and retrying"
     umount "$MOUNT_POINT" 2>/dev/null || true
-    sleep 2
+    sleep 1
 done
