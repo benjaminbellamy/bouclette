@@ -1,115 +1,71 @@
-# Building the Bouclette Image
+# Building a bouclette image
 
-The SD card image is built on a Linux laptop using
-[pi-gen](https://github.com/RPi-Distro/pi-gen), the official Raspberry Pi OS
-image builder. The result is a ready-to-flash `.img.xz` file.
+The image is built with [pi-gen](https://github.com/RPi-Distro/pi-gen), the
+official Raspberry Pi OS build tool, targeting **Debian 13 (Trixie)** on
+**arm64**. The `build-image.sh` script clones pi-gen, injects the bouclette
+stage, and runs the build.
 
-> **Platform:** Debian or Ubuntu host recommended. Other distros may work but
-> are untested. Building on macOS or Windows is not supported.
+## Requirements
 
----
+**Docker build (recommended):** Docker must be running. No root required.
 
-## 1. Install dependencies
+**Native build:** Debian/Ubuntu host, root access, and the pi-gen dependencies:
+
+```
+sudo apt-get install coreutils quilt parted qemu-user-static debootstrap \
+    zerofree zip dosfstools libcap2-bin grep rsync xz-utils file git curl
+```
+
+## Build
 
 ```bash
-sudo apt install \
-  git quilt parted qemu-user-static debootstrap zerofree \
-  zip dosfstools libcap2-bin grep rsync xz-utils file \
-  libarchive-tools pigz arch-test
-sudo systemctl restart systemd-binfmt
+# First build (clones pi-gen, takes ~30–60 min)
+./build-image.sh
+
+# Subsequent builds reuse the pi-gen work directory (much faster)
+./build-image.sh
+
+# Force a full rebuild from scratch
+./build-image.sh --clean
+
+# Native build (requires root)
+sudo ./build-image.sh --native
 ```
 
-## 2. Clone pi-gen and this repository
+The final image is written to `pi-gen/deploy/` as a `.zip` file.
 
-Clone both **outside of each other**, anywhere on your machine.
-The default expected location for pi-gen is `~/pi-gen`:
+## Customisation
+
+`config.default` is the committed template with safe defaults. Copy it to
+`config` (gitignored) and fill in your credentials:
 
 ```bash
-git clone https://github.com/RPi-Distro/pi-gen.git ~/pi-gen
-git clone https://github.com/benjaminbellamy/bouclette.git ~/bouclette
+cp config.default config
+$EDITOR config
 ```
 
-Your home directory should look like:
+`build-image.sh` sources `config.default` first, then `config` on top
+of it — so `config` only needs to contain the values you actually want to
+override.
 
-```
-~/
-├── bouclette/    ← this repo
-└── pi-gen/       ← pi-gen (default location)
-```
-
-## 3. Build
+Any value can also be overridden on the command line without editing files:
 
 ```bash
-cd ~/bouclette
-./build/build-image.sh
+./build-image.sh --hostname kiosk-lobby --wpa-essid MyWifi --wpa-password s3cr3t
 ```
 
-If pi-gen is not at `~/pi-gen`, point to it explicitly:
+Run `./build-image.sh --help` for the full list of options.
 
-```bash
-PIGEN_DIR=/path/to/pi-gen ./build/build-image.sh
-```
+The available variables are:
 
-The script will:
-
-1. Write a `config` file into the pi-gen directory
-2. Copy the `rootfs-overlay/` tree into pi-gen's stage2
-3. Add a `stage-bouclette` stage that installs packages (`mpv`, `exfat-fuse`,
-   `ntfs-3g`, `v4l-utils`) and configures auto-login and the systemd service
-4. Run the pi-gen build (this takes **20–60 minutes** depending on your machine
-   and internet connection)
-
-## 4. Flash the image
-
-The finished image is in `~/pi-gen/deploy/`.
-
-**Recommended:** use [Raspberry Pi Imager](https://www.raspberrypi.com/software/) →
-**"Use custom image"** → select the `.img.xz` file. Imager handles decompression,
-verification, and safe unmount automatically.
-
-Alternatively, with `dd`:
-
-```bash
-# Replace /dev/sdX with your SD card device — double-check with lsblk!
-sudo dd if=~/pi-gen/deploy/bouclette-*.img.xz \
-        of=/dev/sdX \
-        bs=4M status=progress
-sudo sync
-```
-
----
-
-## Rebuilding after changes
-
-pi-gen caches each stage in `work/`. To rebuild only the bouclette stage after
-changing scripts or config:
-
-```bash
-# Remove the cached bouclette stage, keep earlier stages cached
-rm -rf ~/pi-gen/work/*/stage-bouclette
-cd ~/bouclette && ./build/build-image.sh
-```
-
-To rebuild everything from scratch:
-
-```bash
-rm -rf ~/pi-gen/work ~/pi-gen/deploy
-cd ~/bouclette && ./build/build-image.sh
-```
-
----
-
-## Troubleshooting
-
-**Build fails with "debootstrap error"**
-Check your internet connection — debootstrap downloads packages from the
-Raspberry Pi OS mirrors during the build.
-
-**`mount: permission denied`**
-pi-gen needs to run mount inside a chroot. Make sure you are not inside a
-Docker container or a filesystem that disallows it. Run on a bare metal or
-standard VM host.
-
-**Out of disk space**
-A full build requires ~8 GB of free space. The finished image is ~2 GB
-compressed. Check with `df -h`.
+| Variable | Default | Description |
+|---|---|---|
+| `TARGET_HOSTNAME` | `bouclette` | mDNS hostname (`<name>.local`) |
+| `FIRST_USER_NAME` | `bouclette` | SSH login |
+| `FIRST_USER_PASS` | `bouclette` | SSH password — **change before shipping** |
+| `LOCALE_DEFAULT` | `fr_FR.UTF-8` | System locale |
+| `TIMEZONE_DEFAULT` | `Europe/Paris` | Timezone |
+| `IMG_ARCH` | `arm64` | `arm64` for RPi4/5, `armhf` for RPi3 |
+| `WPA_ESSID` | _(empty)_ | WiFi network name — leave empty to skip |
+| `WPA_PASSWORD` | _(empty)_ | WiFi password |
+| `WPA_COUNTRY` | `FR` | ISO 3166-1 country code for WiFi regulatory domain |

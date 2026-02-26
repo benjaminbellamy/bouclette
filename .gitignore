@@ -1,3 +1,6 @@
+# Local config — contains real credentials, never commit
+config
+
 # pi-gen build output
 deploy/
 work/

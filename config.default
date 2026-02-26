@@ -1,0 +1,33 @@
+IMG_NAME="bouclette"
+RELEASE="trixie"
+DEPLOY_COMPRESSION="zip"
+
+# Locale / keyboard / timezone — adjust as needed
+LOCALE_DEFAULT="fr_FR.UTF-8"
+KEYBOARD_KEYMAP="fr"
+KEYBOARD_LAYOUT="French"
+TIMEZONE_DEFAULT="Europe/Paris"
+
+# Hostname (reachable as <hostname>.local over mDNS)
+TARGET_HOSTNAME="bouclette"
+
+# Default user (SSH login for maintenance)
+FIRST_USER_NAME="bouclette"
+FIRST_USER_PASS="bouclette"
+
+# SSH — enable remote access
+ENABLE_SSH=1
+
+# WiFi — leave empty to skip WiFi configuration
+WPA_ESSID=""
+WPA_PASSWORD=""
+WPA_COUNTRY="FR"
+
+# 64-bit image for RPi4/5
+IMG_ARCH="arm64"
+
+# Skip first-boot wizard
+DISABLE_FIRST_BOOT_USER_RENAME=1
+
+# Stages: minimal Raspberry Pi OS + our kiosk stage
+STAGE_LIST="stage0 stage1 stage2 stage-bouclette"
