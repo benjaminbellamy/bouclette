@@ -25,14 +25,14 @@ mkdir -p "${ROOTFS_DIR}/var/lib/bouclette"
 
 # ── Boot: suppress console noise ─────────────────────────────────────────────
 CMDLINE="${BOOT}/cmdline.txt"
-if [ -f "${CMDLINE}" ]; then
+if [ -f "${CMDLINE}" ] && ! grep -q "vt.global_cursor_default" "${CMDLINE}"; then
 	sed -i 's/console=tty1 //' "${CMDLINE}"
 	sed -i 's/$/ quiet loglevel=3 logo.nologo vt.global_cursor_default=0/' "${CMDLINE}"
 fi
 
 # ── config.txt: kiosk tweaks ─────────────────────────────────────────────────
 CONFIG="${BOOT}/config.txt"
-if [ -f "${CONFIG}" ]; then
+if [ -f "${CONFIG}" ] && ! grep -q "bouclette" "${CONFIG}"; then
 	cat >> "${CONFIG}" << 'CONF'
 
 # Bouclette kiosk settings
@@ -42,9 +42,7 @@ hdmi_force_hotplug=1
 CONF
 fi
 
-# ── cloud-init: write working network config ──────────────────────────────────
-# pi-gen's default network-config is all commented out → cloud-init hangs on boot.
-# We replace it with a config that enables ethernet (and WiFi if credentials were set).
+# ── cloud-init: enable ethernet DHCP so SSH is reachable on first boot ────────
 cat > "${BOOT}/network-config" << 'EOF'
 network:
   version: 2
@@ -54,21 +52,42 @@ network:
       optional: true
 EOF
 
+# ── WiFi: write NetworkManager connection file directly ───────────────────────
+# This is exactly what Raspberry Pi Imager does — cloud-init's netplan renderer
+# is unreliable with NetworkManager; writing the .nmconnection file directly works.
 if [ -n "${WPA_ESSID}" ]; then
-	cat >> "${BOOT}/network-config" << EOF
-  wifis:
-    wlan0:
-      dhcp4: true
-      optional: true
-      access-points:
-        "${WPA_ESSID}":
-          password: "${WPA_PASSWORD}"
-      regulatory-domain: ${WPA_COUNTRY:-FR}
+	CONNDIR="${ROOTFS_DIR}/etc/NetworkManager/system-connections"
+	mkdir -p "${CONNDIR}"
+	UUID=$(cat /proc/sys/kernel/random/uuid)
+	cat > "${CONNDIR}/preconfigured.nmconnection" << EOF
+[connection]
+id=preconfigured
+uuid=${UUID}
+type=wifi
+
+[wifi]
+mode=infrastructure
+ssid=${WPA_ESSID}
+hidden=false
+
+[wifi-security]
+key-mgmt=wpa-psk
+psk=${WPA_PASSWORD}
+
+[ipv4]
+method=auto
+
+[ipv6]
+addr-gen-mode=default
+method=auto
+
+[proxy]
 EOF
+	chmod 600 "${CONNDIR}/preconfigured.nmconnection"
+	log "WiFi configured for SSID: ${WPA_ESSID}"
 fi
 
-# Minimal user-data: we don't need cloud-init to do anything on first boot
-# (pi-gen already created the user, enabled SSH, set the hostname, etc.).
+# ── cloud-init: minimal user-data (pi-gen handles user/SSH/hostname already) ──
 cat > "${BOOT}/user-data" << 'EOF'
 #cloud-config
 EOF

@@ -13,6 +13,9 @@ if [ -f "${SCRIPT_DIR}/config" ]; then
     source "${SCRIPT_DIR}/config"
 fi
 
+# Export WiFi vars so they are available to stage scripts (01-run.sh) at build time
+export WPA_ESSID WPA_PASSWORD WPA_COUNTRY
+
 # ── Build-mode flags (not in config) ─────────────────────────────────────────
 CLEAN=0
 NATIVE=0
