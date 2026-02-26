@@ -44,14 +44,6 @@ def find_keyboards():
     return keyboards
 
 
-def mpv_send(sock, command):
-    try:
-        msg = json.dumps({"command": command}) + "\n"
-        sock.sendall(msg.encode())
-    except Exception:
-        pass
-
-
 def connect_mpv():
     while True:
         if os.path.exists(MPV_SOCKET):
@@ -63,6 +55,12 @@ def connect_mpv():
             except Exception:
                 pass
         time.sleep(1)
+
+
+def mpv_send(sock, command):
+    """Send a command to mpv. Raises on failure so the caller can reconnect."""
+    msg = json.dumps({"command": command}) + "\n"
+    sock.sendall(msg.encode())
 
 
 def main():
@@ -82,36 +80,45 @@ def main():
     print(f"[keys] Listening on {len(keyboards)} keyboard(s)", flush=True)
 
     while True:
-        try:
-            ready = sel.select(timeout=2)
-            for key, _ in ready:
-                dev = key.fileobj
-                try:
-                    for event in dev.read():
-                        if event.type != evdev.ecodes.EV_KEY:
-                            continue
-                        if event.value != 1:  # 1 = key down only
-                            continue
-                        code = event.code
+        ready = sel.select(timeout=2)
+        for key, _ in ready:
+            dev = key.fileobj
+            try:
+                for event in dev.read():
+                    if event.type != evdev.ecodes.EV_KEY:
+                        continue
+                    if event.value != 1:  # 1 = key down only
+                        continue
+                    code = event.code
 
-                        if code in MPV_COMMANDS:
+                    if code in MPV_COMMANDS:
+                        try:
                             mpv_send(mpv_sock, MPV_COMMANDS[code])
+                        except Exception:
+                            print("[keys] mpv socket lost — reconnecting", flush=True)
+                            try:
+                                mpv_sock.close()
+                            except Exception:
+                                pass
+                            mpv_sock = connect_mpv()
+                            try:
+                                mpv_send(mpv_sock, MPV_COMMANDS[code])
+                            except Exception:
+                                pass
 
-                        elif code in CEC_KEYS:
-                            subprocess.Popen(
-                                ["/usr/local/bin/bouclette-cec-volume.sh",
-                                 CEC_KEYS[code]],
-                                stdout=subprocess.DEVNULL,
-                                stderr=subprocess.DEVNULL,
-                            )
-                except OSError:
-                    sel.unregister(dev)
-                    keyboards.remove(dev)
-                    print(f"[keys] Device removed: {dev.path}", flush=True)
+                    elif code in CEC_KEYS:
+                        subprocess.Popen(
+                            ["/usr/local/bin/bouclette-cec-volume.sh",
+                             CEC_KEYS[code]],
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL,
+                        )
 
-        except Exception as e:
-            print(f"[keys] Error: {e} — reconnecting mpv socket", flush=True)
-            mpv_sock = connect_mpv()
+            except OSError:
+                # Keyboard device was unplugged
+                sel.unregister(dev)
+                keyboards.remove(dev)
+                print(f"[keys] Device removed: {dev.path}", flush=True)
 
 
 if __name__ == "__main__":
