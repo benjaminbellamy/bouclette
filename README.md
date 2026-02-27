@@ -33,7 +33,7 @@ A USB presentation remote (~€10) works perfectly as a wireless controller.
 
 ## Flash
 
-Unzip the image and flash it to a microSD card:
+Download the latest image from the [releases page](https://github.com/benjaminbellamy/bouclette/releases), unzip it and flash it to a microSD card:
 
 ```bash
 unzip pi-gen/deploy/bouclette-*.zip
