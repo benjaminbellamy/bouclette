@@ -19,11 +19,22 @@ MPV_COMMANDS = {
     evdev.ecodes.KEY_TAB:      ["cycle", "pause"],
     evdev.ecodes.KEY_PAGEUP:   ["add", "chapter", -1],
     evdev.ecodes.KEY_PAGEDOWN: ["add", "chapter",  1],
+    evdev.ecodes.KEY_ENTER:    ["script-binding", "bouclette-toggle-osd"],
 }
 
 CEC_KEYS = {
     evdev.ecodes.KEY_VOLUMEUP:   "up",
     evdev.ecodes.KEY_VOLUMEDOWN: "down",
+}
+
+
+INTERESTING_KEYS = {
+    evdev.ecodes.KEY_TAB,
+    evdev.ecodes.KEY_ENTER,
+    evdev.ecodes.KEY_PAGEUP,
+    evdev.ecodes.KEY_PAGEDOWN,
+    evdev.ecodes.KEY_VOLUMEUP,
+    evdev.ecodes.KEY_VOLUMEDOWN,
 }
 
 
@@ -35,9 +46,8 @@ def find_keyboards():
             caps = dev.capabilities()
             if evdev.ecodes.EV_KEY not in caps:
                 continue
-            keys = caps[evdev.ecodes.EV_KEY]
-            if evdev.ecodes.KEY_TAB in keys or evdev.ecodes.KEY_PAGEUP in keys:
-                print(f"[keys] Found keyboard: {dev.name} ({path})", flush=True)
+            if set(caps[evdev.ecodes.EV_KEY]) & INTERESTING_KEYS:
+                print(f"[keys] Found device: {dev.name} ({path})", flush=True)
                 keyboards.append(dev)
         except Exception:
             pass

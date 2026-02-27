@@ -11,6 +11,10 @@ install -m 755 files/bouclette-cec-volume.sh "${ROOTFS_DIR}/usr/local/bin/boucle
 mkdir -p "${ROOTFS_DIR}/etc/mpv"
 install -m 644 files/input.conf "${ROOTFS_DIR}/etc/mpv/input.conf"
 
+# ── OSD overlay script ────────────────────────────────────────────────────────
+mkdir -p "${ROOTFS_DIR}/usr/local/lib/bouclette"
+install -m 644 files/bouclette-osd.lua "${ROOTFS_DIR}/usr/local/lib/bouclette/bouclette-osd.lua"
+
 # ── systemd service ───────────────────────────────────────────────────────────
 install -m 644 files/bouclette.service "${ROOTFS_DIR}/lib/systemd/system/bouclette.service"
 

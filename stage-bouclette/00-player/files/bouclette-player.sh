@@ -150,6 +150,7 @@ while true; do
         --playlist="$PLAYLIST_FILE" \
         --input-ipc-server="$MPV_SOCKET" \
         --input-conf=/etc/mpv/input.conf \
+        --script=/usr/local/lib/bouclette/bouclette-osd.lua \
         --no-config \
         --really-quiet &
     MPV_PID=$!
