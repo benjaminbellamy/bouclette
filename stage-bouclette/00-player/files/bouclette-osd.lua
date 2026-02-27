@@ -145,11 +145,11 @@ local function update()
     local cx = W - CIR_MARG - CIR_R
     local cy = H - CIR_MARG - CIR_R
 
-    -- background disk (white 50 %)
+    -- background disk (white 50 %, 4px larger than the progress sector)
     ass:new_event(); ass:an(7); ass:pos(0, 0)
     ass:append("{\\bord0\\shad0\\c&H" .. WHITE  .. "&\\1a&H80&}")
     ass:draw_start()
-    draw_disk(ass, cx, cy, CIR_R)
+    draw_disk(ass, cx, cy, CIR_R + 4)
     ass:draw_stop()
 
     -- foreground sector (accent 100 %)
