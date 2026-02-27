@@ -161,6 +161,23 @@ local function update()
         ass:draw_stop()
     end
 
+    -- chapter tick dots (2×2 px, one per chapter at its start angle)
+    if #chap_list > 0 and dur > 0 then
+        ass:new_event(); ass:an(7); ass:pos(0, 0)
+        ass:append("{\\bord0\\shad0\\c&H" .. BLACK .. "&\\1a&H80&}")
+        ass:draw_start()
+        for _, ch in ipairs(chap_list) do
+            local angle = (ch.time / dur) * 2 * math.pi
+            local dx = ri(cx + (CIR_R + 2) * math.sin(angle))
+            local dy = ri(cy - (CIR_R + 2) * math.cos(angle))
+            ass:move_to(dx - 1, dy - 1)
+            ass:line_to(dx + 1, dy - 1)
+            ass:line_to(dx + 1, dy + 1)
+            ass:line_to(dx - 1, dy + 1)
+        end
+        ass:draw_stop()
+    end
+
     -- ── Chapter index ─────────────────────────────────────────────────────────
     if show_chap then
         local CH_FS    = math.max(1, ri(H * 0.02))
