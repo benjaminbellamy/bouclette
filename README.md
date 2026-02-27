@@ -8,6 +8,8 @@ Petite boucle de poils ou de cheveux. *(Small curl of hair or fur.)*
 A Raspberry Pi 4/5 kiosk appliance that boots directly into a fullscreen video player.  
 No desktop, no login prompt — just plug in a USB drive with video files and it plays.
 
+Inspired by [videolooper.de](http://videolooper.de/) and [Adafruit Pi Video Looper](https://github.com/adafruit/pi_video_looper), both of which rely on omxplayer — a player that has since been deprecated and removed from Raspberry Pi OS. Bouclette is built on [mpv](https://mpv.io/) instead, and adds a heads-up display (chapter progress bar, circular progress indicator, chapter list) and support for navigating chapters and files with a regular €10 PC remote.
+
 ## What it does
 
 - Plays all video files found on a USB drive (`mp4`, `mkv`, `avi`, `mov`, `ts`,
