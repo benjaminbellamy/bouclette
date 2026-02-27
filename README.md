@@ -18,13 +18,14 @@ No desktop, no login prompt — just plug in a USB drive with video files and it
 
 ## Keyboard shortcuts
 
-| Key       | Action                        |
-|-----------|-------------------------------|
-| `Tab`     | Play / Pause                  |
-| `Page Up` | Previous chapter              |
-| `Page Down` | Next chapter                |
-| `Vol +`   | Volume up (sent via HDMI CEC) |
-| `Vol -`   | Volume down (sent via HDMI CEC) |
+|Button    | Key       | Action                        |
+|----------|-----------|-------------------------------|
+|◻         | `Tab`     | Play / Pause video            |
+|◻ ×2      | `ENTER`   | Hide / Display informations   |
+|△         | `Page Up` | Previous chapter              |
+|▽         | `Page Down` | Next chapter                |
+|⊕         | `Vol +`   | Volume up (sent via HDMI CEC) |
+|⊖         | `Vol -`   | Volume down (sent via HDMI CEC) |
 
 A USB presentation remote (~€10) works perfectly as a wireless controller.
 
